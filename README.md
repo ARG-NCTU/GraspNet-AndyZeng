@@ -15,5 +15,5 @@ $ source build.sh
 $ cd GraspNet-AndyZeng
 $ source docker_run.sh / docker_join.sh
 In container
-# cd /home/argtorch7/GraspNet-AndyZeng/
+$ cd /home/argtorch7/GraspNet-AndyZeng/
 ``` 

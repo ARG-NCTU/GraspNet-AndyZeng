@@ -1,0 +1,4 @@
+# Hashes of file build rules.
+3679d0bc90b3879bd3191cd9034a1fcf CMakeFiles/inn.dir/inn_generated_ROIPooling.cu.o
+91e3b962fde5a1089d281371b68b04fa CMakeFiles/inn.dir/inn_generated_SpatialStochasticPooling.cu.o
+13a0fa0275b5fb67b9236fad1d5437d2 CMakeFiles/inn.dir/inn_generated_detect_cuda_archs.cu.o

@@ -1,0 +1,48 @@
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORCE_INLINES")
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
+CMAKE_POLICY(VERSION 2.8)
+
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+
+FIND_PACKAGE(Torch REQUIRED)
+FIND_PACKAGE(CUDA 6.5)
+
+FILE(GLOB luasrc *.lua)
+
+IF(CUDA_FOUND)
+  # Detect CUDA architecture and get best NVCC flags
+  INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindCudaArch.cmake)
+  SELECT_NVCC_ARCH_FLAGS(NVCC_FLAGS_EXTRA)
+  LIST(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
+
+  INCLUDE_DIRECTORIES("${Torch_INSTALL_INCLUDE}/THC")
+  LINK_DIRECTORIES("${Torch_INSTALL_LIB}")
+
+  FILE(GLOB src-cuda *.cu)
+
+  CUDA_ADD_LIBRARY(inn MODULE ${src-cuda})
+  TARGET_LINK_LIBRARIES(inn luaT THC TH)
+  IF(APPLE)
+    SET_TARGET_PROPERTIES(inn PROPERTIES
+      LINK_FLAGS "-undefined dynamic_lookup")
+  ENDIF()
+
+  ### Torch packages supposes libraries prefix is "lib"
+  SET_TARGET_PROPERTIES(inn PROPERTIES
+    PREFIX "lib"
+    IMPORT_PREFIX "lib")
+
+  INSTALL(TARGETS inn
+    RUNTIME DESTINATION "${Torch_INSTALL_LUA_CPATH_SUBDIR}"
+    LIBRARY DESTINATION "${Torch_INSTALL_LUA_CPATH_SUBDIR}")
+ENDIF(CUDA_FOUND)
+
+INSTALL(
+  FILES
+  ${luasrc}
+  DESTINATION "${Torch_INSTALL_LUA_PATH_SUBDIR}/inn")
+
+extra_compile_args={
+  'cxx': ['-O2',],
+  'nvcc':['--gpu-architecture=compute_70','--gpu-code=sm_70','-O3','-I./cutlass/','-U__CUDA_NO_HALF_OPERATORS__', '-U__CUDA_NO_HALF_CONVERSIONS__']
+}
